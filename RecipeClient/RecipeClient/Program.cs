@@ -3,6 +3,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+// Build a config object, using env vars and JSON providers.
+IConfiguration config = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json")
+    .AddEnvironmentVariables()
+    .Build();
+
+// Get values from the config given their key
+var url = config.GetRequiredSection("url").Get<string>();
+
+//Build app
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
