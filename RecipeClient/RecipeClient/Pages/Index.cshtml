@@ -4,33 +4,141 @@
     ViewData["Title"] = "Home page";
 }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Merienda&family=Scheherazade+New&display=swap" rel="stylesheet">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Kaushan+Script&family=Merienda&family=Scheherazade+New&display=swap" rel="stylesheet">
+<head>
+    <script defer src="https://unpkg.com/@Html.Raw('@')alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/@Html.Raw('@')alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
+</head>
+<script>
+    async function fetchRecipesJSON() {
+        const response = await fetch("@Model.ApiUrl/recipes");
+        const recipes = await response.json();
+        return recipes;
+    }
+</script>
 
-
-<div class="text-center c-back-img-div">
-    <div class="row pe-0">
-        <div class="col">
-        </div>
-        <div class="col">
-            <h1 class="display-4 mt-5 c-title-font c-white-font">Welcome to Tasty Tips</h1>
-            <p class="c-description-font mb-5" style="text-align: start;">Where we'll be using simple, fresh ingredients and transforming them into sophisticated and elegant meals for the everyday home cook.</p>
-            <div class="row" style="--bs-gutter-x: -0.5rem; width:90%; align-self:center">
-                <div class="col c-box-recipe">
-                    <button class="btn m-2"> <p class="c-grey-font c-title-font h4">Recipe</p></button>
-                    <p> You can add new recipes and your experience and view all recipes to try.</p>
-                    <button class="btn m-4 c-explore-btn" style="background-color: #ffdfe4;">Explore Recipes</button>
-                </div>
-                <div class="col c-box-category">
-                     <button class="btn m-2 "> <p class="c-grey-font c-title-font h4">Category</p></button>
-                    <p> You can add new categories and share with us your country food.</p>
-                    <button class="btn btn-warnong m-4 c-explore-btn" style="background-color: #ffffd5;">Explore Categories</button>
+<section x-data="{recipes: [] }" x-init="recipes= await fetchRecipesJSON(); console.log(recipes); console.log('xxx');">
+    <div class="text-center c-back-img-div" id="section1">
+        <div class="row pe-0">
+            <div class="col">
+            </div>
+            <div class="col">
+                <h1 class="display-4 mt-5 c-title-font c-white-font">Welcome to Tasty Tips</h1>
+                <p class="c-description-font mb-5" style="text-align: start; font-size:120%;">Where we'll be using
+                    simple, fresh ingredients and transforming them into sophisticated and elegant meals for the
+                    everyday home cook.</p>
+                <div class="row" style="--bs-gutter-x: -0.5rem; width:90%; align-self:center">
+                    <div class="col c-box-recipe">
+                        <button class="btn m-2">
+                            <p class="c-grey-font c-title-font h4">Recipe</p>
+                        </button>
+                        <p class="c-description-font"> You can add new recipes and your experience and view all recipes
+                            to try.</p>
+                        <button class="btn m-4 c-explore-btn" style="background-color: #ffdfe4;" href="#RecipeSection"
+                            x-on:click="window.location.hash = '#section2';">
+                            Explore Recipes
+                        </button>
+                    </div>
+                    <div class="col c-box-category">
+                        <button class="btn m-2 ">
+                            <p class="c-grey-font c-title-font h4">Category</p>
+                        </button>
+                        <p class="c-description-font"> You can add new categories and share with us your country food.
+                        </p>
+                        <button class="btn btn-warnong m-4 c-explore-btn" style="background-color: #ffffd5;">Explore
+                            Categories</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+    <div class="c-recipe-background" id="section2">
+        <div style="text-align:end" class="p-3 pb-0" href="#section1" x-on:click="window.location.hash = '#section1';">
+            <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor"
+                class="bi bi-arrow-up-square" viewBox="0 0 16 16" style="cursor:pointer">
+                <path fill-rule="evenodd"
+                    d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.5 9.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z" />
+            </svg>
+        </div>
+        <h1 class="c-title-font h1 " style="text-align:center; color:white; font-size:60px;">
+            Recipes
+            <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-plus-circle"
+                viewBox="0 0 16 16" style="color:yellow; cursor:pointer">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                <path
+                    d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+            </svg>
+        </h1>
+        <div class="container">
+            <div class="owl-carousel owl-theme">
+                <template  x-for="recipe in recipes">
+                        <div class="card c-card-div item shadow">
+                            <div class="c-img-div">
+                                <img src="~/Images/donuts.jpg" class="card-img-top c-card-img" alt="..." width="100"
+                                    height="100">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title c-font-color">recipe</h5>
+                                <div class="c-categories-container-recipe my-4">
+                                    <button class="c-category-btn mx-1" disabled>xx</button>
+                                </div>
+                                <a class="c-details-btn btn " asp-page="RecipeDetails">DETAILS</a>
+                                <div class="mt-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
+                                        class="bi bi-pencil-square me-2" viewBox="0 0 16 16" data-bs-toggle="modal"
+                                        data-bs-target="">
+                                        <path
+                                            d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                        <path fill-rule="evenodd"
+                                            d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
+                                        class="bi bi-trash-fill" viewBox="0 0 16 16" data-bs-toggle="modal"
+                                        data-bs-target="">
+                                        <path
+                                            d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+
+    $('.owl-carousel').owlCarousel({
+        loop: true,
+        margin: 10,
+        responsiveClass: true,
+        responsive: {
+            0: {
+                items: 1,
+                nav: true,
+                loop: false
+            },
+            550: {
+                items: 2,
+                nav: true,
+                loop: false
+            },
+            1000: {
+                items: 3,
+                nav: true,
+                loop: false
+            },
+            1300: {
+                items: 4,
+                nav: true,
+                loop: false
+            },
+            1500: {
+                items: 4,
+                nav: true,
+                loop: false
+            }
+        }
+    })
+</script>
