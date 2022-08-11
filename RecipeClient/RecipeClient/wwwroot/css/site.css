@@ -140,4 +140,18 @@ body {
     background-color: #f3cdee;
 }
 
+.c-form-title{
+    margin: 1rem 11.5rem;
+}
+
+.c-form-div{
+    margin: 1rem 11.5rem;
+    border-radius:19px;
+}
+.c-title-input{
+    width:45%;
+}
+.form-check-input:checked{
+    background-color:#ad21c5;
+}
 
