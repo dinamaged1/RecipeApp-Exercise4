@@ -55,8 +55,9 @@
                 'Content-Type': 'application/json;',
             }
         });
-        var parameter = { "base64string": `${srcData}`, "filename": `${imagePath}`};
-        response = await fetch(`?handler=SaveImageToFolder&base64string=${srcData}&filename=${imagePath}`, {
+
+        var parameter = { Base64String: `${srcData}`, FileName: `${imagePath}`};
+        response = await fetch(`?handler=SaveImageToFolder`, {
             method: "POST",
             headers: {
                 "Access-Control-Allow-Origin": "*",

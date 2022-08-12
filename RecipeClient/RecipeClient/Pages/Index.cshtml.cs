@@ -4,6 +4,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace RecipeClient.Pages
 {
+    public class Image
+    {
+        public string FileName { get; set; } = string.Empty;
+        public string Base64String { get; set; }= string.Empty;
+    }
+
     [IgnoreAntiforgeryToken(Order = 1001)]
     public class IndexModel : PageModel
     {
@@ -12,6 +18,7 @@ namespace RecipeClient.Pages
         [BindProperty]
         public string ApiUrl { get; set; }
 
+        
         public IndexModel(ILogger<IndexModel> logger,IConfiguration config, IWebHostEnvironment host)
         {
             _logger = logger;
@@ -19,19 +26,13 @@ namespace RecipeClient.Pages
             _host = host;
         }
 
-        public void OnGet()
+        public async Task OnPostSaveImageToFolder([FromBody] Image recievedImage)
         {
-
-        }
-
-        
-        public async Task OnPostSaveImageToFolder(string base64string, string filename)
-        {
-            byte[] imageBytes = Convert.FromBase64String(base64string);
+            byte[] imageBytes = Convert.FromBase64String(recievedImage.Base64String);
             MemoryStream ms = new MemoryStream(imageBytes, 0,
               imageBytes.Length);
             var data = ms.ToArray();
-            var filePath = $"{_host.WebRootPath}/RecipesImages/{filename}";
+            var filePath = $"{_host.WebRootPath}/RecipesImages/{recievedImage.FileName}";
             await System.IO.File.WriteAllBytesAsync(filePath, data);
         }
     }
