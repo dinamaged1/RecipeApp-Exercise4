@@ -83,21 +83,26 @@ body {
 }
 
 .c-card-div {
-    width: 300px;
+    width: 330px;
     text-align: center;
     font-size: 10px;
-    transition: transform 0.5s,height 0.5s;
+    transition: transform 0.5s,width 0.5s,box-shadow 0.5s;
 }
 
-.c-card-div:hover{
-   transform:translateY(-20px);
-   height:450px;
-   
-}
+    .c-card-div:hover {
+        transform: translateY(-20px);
+        width: 340px;
+        box-shadow: 0 1.5rem 2rem rgba(0,0,0,.5) !important;
+    }
+    .c-card-div:hover .c-img-div {
+        height: 300px;
+        width: 338px;
+    }
 
 .c-img-div {
-    width: 298px;
-    height: 240px;
+    width: 328px;
+    height: 280px;
+    transition: height 0.5s,width 0.5s;
 }
 
 .c-card-img {
