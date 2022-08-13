@@ -18,7 +18,11 @@ html {
 
 body {
     margin-bottom: 60px;
-    overflow-x: hidden
+    overflow-x: hidden;
+    overflow: hidden
+}
+body::-webkit-scrollbar {
+    display: none;
 }
 
 .c-container {
@@ -69,7 +73,8 @@ body {
 
 .c-recipe-background {
     /*background-image: url("https://i.im.ge/2022/08/04/FYnDMa.bg-recipe.png");*/
-    min-height: 95vh;
+    min-height: 100vh;
+    padding-top:1%;
     background-repeat: no-repeat;
     background-size: cover;
     background-color: #bee2e4;
@@ -90,7 +95,7 @@ body {
 }
 
     .c-card-div:hover {
-        transform: translateY(-20px);
+        transform: translateY(-30px);
         width: 340px;
         box-shadow: 0 1.5rem 2rem rgba(0,0,0,.5) !important;
     }
