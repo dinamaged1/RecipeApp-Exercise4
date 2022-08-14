@@ -13,6 +13,9 @@
 <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 
 <script>
+    let recipesList = [];
+    let currentRecipeId;
+
     async function fetchRecipesJSON() {
       const response = await fetch("@Model.ApiUrl/recipes");
       const recipes = await response.json();
@@ -47,7 +50,7 @@
 
         // Check if inputs is full or empty
         let isDataOk = true;
-        if (newRecipe.title == "" || newRecipe.ingredients.length == 0 || newRecipe.instructions.length == 0) {
+        if (newRecipe.title == "" || newRecipe.ingredients.length == 0 || newRecipe.instructions.length == 0 || `${srcData}`=="") {
             isDataOk = false;
         }
         for (i = 0; i < newRecipe.ingredients.length; i++) {
@@ -61,36 +64,38 @@
             }
         }
 
-        // New Recipe object that will be added to recipe list
-        newRecipe = {
-            "id": newRecipe.id,
-            "title": newRecipe.title,
-            "imagepath": `/RecipesImages/${imagePath}`,
-            "ingredients": newRecipe.ingredients,
-            "instructions": newRecipe.instructions,
-            "categories": newRecipeCategories
-        }
-
-        // Make add recipe request
-        let response = await fetch("@Model.ApiUrl/recipe", {
-            method: "POST",
-            body: JSON.stringify(newRecipe),
-            headers: {
-                'Content-Type': 'application/json;',
+        if (isDataOk) {
+            // New Recipe object that will be added to recipe list
+            newRecipe = {
+                "id": newRecipe.id,
+                "title": newRecipe.title,
+                "imagepath": `/RecipesImages/${imagePath}`,
+                "ingredients": newRecipe.ingredients,
+                "instructions": newRecipe.instructions,
+                "categories": newRecipeCategories
             }
-        });
 
-        // Call SaveImageToFolder method with POST request
-        var parameter = { Base64String: `${srcData}`, FileName: `${imagePath}`};
-        response = await fetch(`?handler=SaveImageToFolder`, {
-            method: "POST",
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "RequestVerificationToken": `@token`, 'Content-Type': 'application/json;'
-            },
-            body: JSON.stringify(parameter),
-        });
-        window.location.hash = '#recipesSection'
+            // Make add recipe request
+            let response = await fetch("@Model.ApiUrl/recipe", {
+                method: "POST",
+                body: JSON.stringify(newRecipe),
+                headers: {
+                    'Content-Type': 'application/json;',
+                }
+            });
+
+            // Call SaveImageToFolder method with POST request
+            var parameter = { Base64String: `${srcData}`, FileName: `${imagePath}` };
+            response = await fetch(`?handler=SaveImageToFolder`, {
+                method: "POST",
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "RequestVerificationToken": `@token`, 'Content-Type': 'application/json;'
+                },
+                body: JSON.stringify(parameter),
+            });
+        }
+        return isDataOk;
     }
 
     function imageViewer() {
@@ -120,7 +125,7 @@
     }
 </script>
 
-<div x-data="{addRecipeShow:false, recipeShow:false ,recipes: [],categories:[], numberOfPages:0, recipesPerPage:3}" x-init="recipes= await fetchRecipesJSON();categories=await fetchCategoriesJSON() ;recipesPerPage=3; console.log(recipes)  ; numberOfPages=Math.ceil(recipes.length/recipesPerPage)" x-intersect="recipeShow = true">
+<div x-data="{addRecipeShow:false, recipeShow:false ,recipes: [],categories:[], numberOfPages:0, recipesPerPage:3}" x-init="recipes= await fetchRecipesJSON();categories=await fetchCategoriesJSON() ;recipesPerPage=3; console.log(recipes)  ; numberOfPages=Math.ceil(recipes.length/recipesPerPage)">
     <section id="section1">
         <div class="text-center c-back-img-div">
             <div class="row pe-0">
@@ -158,7 +163,7 @@
             <h1 class="c-title-font h1 mb-4" style="text-align:center; color:white; font-size:60px;">
                 Recipes
                 <button x-on:click="addRecipeShow=true;  $nextTick(()=>{window.location.hash = '#addRecipeSection'})" style="border: none; background-color: transparent">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16" style="color:yellow; cursor:pointer" >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16" style="color:yellow; cursor:pointer">
                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                         <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
                     </svg>
@@ -206,16 +211,16 @@
             </div>
         </div>
     </section>
-    <section id="addRecipeSection" x-show="addRecipeShow" x-transition>
-        <div class="c-recipe-background pt-4" id="section3" >
+    <section id="addRecipeSection" x-show="addRecipeShow" x-cloak>
+        <div class="c-recipe-background pt-4" id="section3">
             <h1 class="c-title-font c-form-title" style="font-family: 'El Messiri', sans-serif;">
                 Add Recipe
             </h1>
             <div class="c-add-recipe-form c-form-div" x-data="imageViewer()">
-                <div class="p-5 pt-4" x-data="{newRecipe: {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []},}">
-                    <form>
+                <div class="p-5 pt-4" x-data="{newRecipe: {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}}">
+                    <form x-on:submit.prevent="isDataOk=await addRecipe(newRecipe,imageBase64Stringsep,categories); if(isDataOk){recipes=await fetchRecipesJSON(); window.location.hash = '#recipesSection';  addRecipeShow=false; newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []};imgUrl='';imageBase64Stringsep: ''}">
                         <div style="float: right;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16" style="cursor:pointer" x-on:click="window.location.hash = '#recipesSection'; $nextTick(()=>{newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}})">
                                 <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
                             </svg>
                         </div>
@@ -303,20 +308,111 @@
                                      style="width: 100px; height: 100px;"></div>
                             </template>
                             <div class="col-auto">
-                                <input class="mt-2" type="file" x-on:change="fileChosen" id="newImg">
+                                <input class="mt-2" type="file" x-on:change="fileChosen" id="newImg" required>
                             </div>
                         </div>
                         <div>
                             <div class="row " style="float:right">
                                 <div class="col">
-                                    <button class="btn btn-secondary" x-on:click="$nextTick(()=>{addRecipeShow=false})"> Cancel</button>
+                                    <button type="button" class="btn btn-secondary" x-on:click="await $nextTick(()=>{window.location.hash = '#recipesSection'; newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}})"> Cancel</button>
                                 </div>
                                 <div class="col">
-                                    <button type="submit" x-on:click="await addRecipe(newRecipe,imageBase64Stringsep,categories); recipes=await fetchRecipesJSON();  $nextTick(()=>{addRecipeShow=false})" class="btn" style="background-color: #d560e9">Submit </button>
+                                    <button type="submit" class="btn" style="background-color: #d560e9">Submit </button>
                                 </div>
                             </div>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="c-recipe-background">
+            <div class="row" style="margin:1rem 12rem">
+                <div class="col-5 px-0 justify-content-center">
+                    <h2 class="c-recipe-details-title"> Bread with Cream Recipe</h2>
+                </div>
+                <div class="col py-1">
+                    <div class="float-end me-2">
+                        <button class="d-inline btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                            </svg>
+                        </button>
+                        <button class="d-inline btn btn-danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row c-recipe-details-div shadow">
+                <div class="col-5 px-0">
+                    <img src="~/Images/breadwithcream.jpg" class="c-recipe-details-img" />
+                </div>
+                <div class="col-7 p-3">
+                    <div class="d-flex flex-column ">
+                        <div class="mb-3">
+                            <img src="~/Images/Lovepik_com-610489188-Food ingredients.png" width="50" height="50" />
+                            <h5 class="c-recipe-details-headers">Ingredients</h5>
+                            <div class="c-recipe-details-border p-2">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <ul>
+                                            <li>1 package (1/4 ounce) active dry yeast</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-6">
+                                        <ul>
+                                            <li>1 tablespoon salt</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-6">
+                                        <ul>
+                                            <li>3 tablespoons plus 1/2 teaspoon sugar</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-6">
+                                        <ul>
+                                            <li>6-1/4 to 6-3/4 cups bread flour</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-6">
+                                        <ul>
+                                            <li>2-1/4 cups warm water (110° to 115°)</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-6">
+                                        <ul>
+                                            <li>2 tablespoons canola oil</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <img src="~/Images/Lovepik_com-401216683-fruit-salad-big-bowl-of-fruit.png" width="65" height="65" />
+                            <h5 class="c-recipe-details-headers">Steps</h5>
+                            <div class="c-recipe-details-border p-2" style="height: 40vh; overflow: auto;">
+                                <ol>
+                                    <li>In a large bowl, dissolve yeast and 1/2 teaspoon sugar in warm water; let stand until bubbles form on surface. Whisk together remaining 3 tablespoons sugar, salt and 3 cups flour. Stir oil into yeast mixture; pour into flour mixture and beat until smooth. Stir in enough remaining flour, 1/2 cup at a time, to form a soft dough.</li>
+                                    <hr style=" height: 0.5px; margin: 1rem 6rem; " />
+                                    <li>Turn onto a floured surface; knead until smooth and elastic, 8-10 minutes. Place in a greased bowl, turning once to grease the top. Cover and let rise in a warm place until doubled, 1-1/2 to 2 hours.</li>
+                                    <hr style=" height: 0.5px; margin: 1rem 6rem; " />
+                                    <li>Punch dough down. Turn onto a lightly floured surface; divide dough in half. Shape each into a loaf. Place in 2 greased 9x5-in. loaf pans. Cover and let rise until doubled, 1 to 1-1/2 hours. </li>
+                                    <hr style=" height: 0.5px; margin: 1rem 6rem; " />
+                                    <li>Bake at 375° until loaf is golden brown and sounds hollow when tapped or has reached an internal temperature of 200°, 30-35 minutes. Remove from pans to wire racks to cool.</li>
+                                    <hr style=" height: 0.5px; margin: 1rem 6rem; " />
+                                    <li>Place the flour, sugar, milk, and salt in a medium-sized pan. Whisk until there are no lumps.</li>
+                                    <li>Heat over medium heat and stir with a wooden spoon for about 3 to 4 minutes until bubbles start to pop up. </li>
+                                    <li>Reduce the heat to low or medium-low. Stir in the strained egg yolks a little by little, over 20 to 30 seconds.</li>
+                                    <li>Remove from the heat. Add the butter and vanilla extract and mix well. Let it cool and refrigerate until ready to use. You can refrigerate it for 1 or 2 days.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
