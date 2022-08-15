@@ -15,7 +15,7 @@
 <script>
     let recipesList = [];
     let categoriesList = []
-    let currentRecipe;
+    let currentRecipeImage="";
 
     async function fetchRecipesJSON() {
         const response = await fetch("@Model.ApiUrl/recipes");
@@ -37,19 +37,6 @@
         for (let i = 0; i < recipeCategories.length; i++) {
             if (recipeCategories[i] == true) {
                 newRecipeCategories.push(categories[i]);
-            }
-        }
-        return newRecipeCategories;
-    }
-
-    function getSelectedCategories(recipeCategories) {
-        let selectedRecipeCategories = [];
-        for (let i = 0; i < categoriesList.length; i++) {
-            if (recipeCategories.includes(categoriesList[i])) {
-                selectedRecipeCategories.push(true);
-            }
-            else {
-                selectedRecipeCategories.push(false);
             }
         }
         return newRecipeCategories;
@@ -125,14 +112,20 @@
         }
     }
 
-    function imageViewer() {
+    function imageViewer(url) {
         return {
-            imgUrl: '',
+            imgUrl: `${url}`,
 
             imageBase64Stringsep: '',
 
+            changeImgUrl: function (newUrl) {
+                this.imgUrl = newUrl;
+            },
             fileChosen(event) {
-                this.fileToDataUrl(event, (src1, src2) => { this.imgUrl = src1; this.imageBase64Stringsep = src2; })
+                this.fileToDataUrl(event, (src1, src2) => {
+                    this.imgUrl = src1;
+                    this.imageBase64Stringsep = src2;
+                })
             },
 
             fileToDataUrl(event, callback) {
@@ -150,9 +143,13 @@
             },
         }
     }
+    function changeData(imgUrl){
+        var e = document.getElementById("divImg");
+        e.setAttribute("x-data", `imageViewer(${imgUrl})`);
+    }
 </script>
 
-<div x-data="{addRecipeShow:false, recipeDetailsShow:false, recipeShow:false ,recipes: [],categories:[],currentRecipe:{id: '',title: '',ingredients: [''],instructions: [''],categories: []} ,numberOfPages:0, recipesPerPage:3}" x-init="recipes= await fetchRecipesJSON();categories=await fetchCategoriesJSON() ;recipesPerPage=3; console.log(recipes)  ; numberOfPages=Math.ceil(recipes.length/recipesPerPage)">
+<div x-data="{addRecipeShow:false, recipeDetailsShow:false, recipeShow:false,recipes: [],categories:[],currentRecipe:{id: '',title: '',imagepath:'',ingredients: [''],instructions: [''],categories: []} ,numberOfPages:0, recipesPerPage:3}" x-init="recipes= await fetchRecipesJSON();categories=await fetchCategoriesJSON() ;recipesPerPage=3; console.log(recipes)  ; numberOfPages=Math.ceil(recipes.length/recipesPerPage)">
     <section id="section1">
         <div class="text-center c-back-img-div">
             <div class="row pe-0">
@@ -217,7 +214,7 @@
                                                             </template>
                                                         </div>
                                                     </div>
-                                                    <div x-on:click="currentRecipe=recipe; recipeDetailsShow=true; $nextTick(()=>{window.location.hash = '#recipeDetailsSection'})">
+                                                    <div x-on:click="currentRecipe=recipe;currentRecipeImage=recipe.imagepath; recipeDetailsShow=true; $nextTick(()=>{window.location.hash = '#recipeDetailsSection'})">
                                                         <a class="c-details-btn btn ">DETAILS</a>
                                                     </div>
                                                 </div>
@@ -245,7 +242,7 @@
             <h1 class="c-title-font c-form-title" style="font-family: 'El Messiri', sans-serif;">
                 Add Recipe
             </h1>
-            <div class="c-add-recipe-form c-form-div" x-data="imageViewer()">
+            <div class="c-add-recipe-form c-form-div" x-data="imageViewer('')">
                 <div class="p-5 pt-4" x-data="{newRecipe: {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}}">
                     <form x-on:submit.prevent="isDataOk=await addRecipe(newRecipe,imageBase64Stringsep,categories); if(isDataOk){recipes=await fetchRecipesJSON(); window.location.hash = '#recipesSection';  addRecipeShow=false; newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []};imgUrl='';imageBase64Stringsep: ''}">
                         <div style="float: right;">
@@ -355,15 +352,15 @@
             </div>
         </div>
     </section>
-    <section x-show="recipeDetailsShow" id="recipeDetailsSection">
-        <div class="c-recipe-details-background">
+    <section x-show="recipeDetailsShow" id="recipeDetailsSection"  x-data="dropdown()">
+        <div class="c-recipe-details-background" id="divImg" x-data="imageViewer('')">
             <div class="row" style="margin:1rem 12rem">
                 <div class="col-5 px-0 justify-content-center">
                     <h2 class="c-recipe-details-title" x-text="`${currentRecipe.title} Recipe`"> </h2>
                 </div>
                 <div class="col py-1">
                     <div class="float-end me-2">
-                        <button class="d-inline btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModalRecipe">
+                        <button class="d-inline btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModalRecipe" x-on:click="changeImgUrl(currentRecipe.imagepath)" >
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                 <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                                 <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
@@ -416,7 +413,7 @@
             </div>
             @* Edit Modal *@
             <div class="modal fade" id="editModalRecipe" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" >
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editModalLabel" x-text="`Edit ${currentRecipe.title} Recipe`"></h5>
@@ -496,7 +493,7 @@
                                 <div class="row">
                                     <template x-for="(category,index) in categories">
                                         <div class="form-group col-6">
-                                            <input type="checkbox" class="form-check-input" x-model="currentRecipe.categories[index]">
+                                            <input type="checkbox" class="form-check-input" x-bind:value="categories[index]" x-model="currentRecipe.categories" >
                                             <label class="form-check-label" x-text="category"></label>
                                         </div>
                                     </template>
@@ -508,18 +505,18 @@
                                              class="object-cover rounded border border-gray-200"
                                              style="width: 100px; height: 100px;">
                                     </template>
-                                    <template x-if="!imgUrl">
+                                    <template x-if="imgUrl==''">
                                         <div class="border rounded border-gray-200 bg-secondary"
                                              style="width: 100px; height: 100px;"></div>
                                     </template>
                                     <div class="col-auto">
-                                        <input class="mt-2" type="file" x-on:change="fileChosen" id="newImg" required>
+                                        <input class="mt-2" type="file" x-on:change="fileChosen" required>
                                     </div>
                                 </div>
                                 <div>
                                     <div class="row " style="float:right">
                                         <div class="col">
-                                            <button type="button" class="btn btn-secondary" x-on:click="await $nextTick(()=>{window.location.hash = '#recipesSection'; newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}; addRecipeShow=false})"> Cancel</button>
+                                            <button type="button" class="btn btn-secondary" x-on:click=""> Cancel</button>
                                         </div>
                                         <div class="col">
                                             <button type="submit" class="btn" style="background-color: #d560e9">Submit </button>
