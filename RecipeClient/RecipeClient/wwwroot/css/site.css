@@ -191,9 +191,18 @@ body {
     background-color: #ad21c5;
 }
 
+.c-recipe-details-background {
+    min-height: 100vh;
+    padding-top: 1%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #bee2e4;
+    overflow: hidden;
+    scroll-behavior: revert !important;
+}
 .c-recipe-details-div {
-    min-height: 85vh;
-    margin: 1rem 12rem;
+    height: 44rem;
+    margin: 1rem 10rem;
     background-color: white;
 }
 
@@ -210,12 +219,34 @@ body {
 
 .c-recipe-details-headers {
     color: hotpink;
+    font-weight:700;
 }
 
 .c-recipe-details-border {
     border-color: #ffe7f2;
     border-style: solid;
-    height: 20vh;
+    height: 22vh;
     overflow: auto;
     overflow-x: hidden;
+    font-size: large;
+    font-weight: 400;
+}
+
+
+@media screen and (max-width: 1500px) {
+    .c-recipe-details-background {
+        min-height: 75vh;
+        width:100%;
+        padding-top: 1%;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-color: #bee2e4;
+        overflow: hidden;
+        scroll-behavior: revert !important;
+    }
+
+    .c-recipe-details-div {
+        margin: 1rem 2rem;
+        background-color: white;
+    }
 }

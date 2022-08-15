@@ -14,7 +14,7 @@
 
 <script>
     let recipesList = [];
-    let currentRecipeId;
+    let currentRecipe;
 
     async function fetchRecipesJSON() {
       const response = await fetch("@Model.ApiUrl/recipes");
@@ -40,11 +40,11 @@
     }
 
     async function addRecipe(newRecipe, imageBase64Stringsep,categories) {
-        var selectedFile = document.getElementById('newImg').files[0];
+        let selectedFile = document.getElementById('newImg').files[0];
         fileName = document.querySelector('#newImg').value;
         extension = fileName.split('.').pop();
         srcData = imageBase64Stringsep;
-        var imagePath = `${newRecipe.id}.${extension}`;
+        let imagePath = `${newRecipe.id}.${extension}`;
 
         const newRecipeCategories = pickRecipeCategories(newRecipe.categories, categories);
 
@@ -85,7 +85,7 @@
             });
 
             // Call SaveImageToFolder method with POST request
-            var parameter = { Base64String: `${srcData}`, FileName: `${imagePath}` };
+            let parameter = { Base64String: `${srcData}`, FileName: `${imagePath}` };
             response = await fetch(`?handler=SaveImageToFolder`, {
                 method: "POST",
                 headers: {
@@ -96,6 +96,17 @@
             });
         }
         return isDataOk;
+    }
+
+    async function deleteRecipe(recipeId) {
+        if (recipeId != "") {
+            let response = await fetch(`@Model.ApiUrl/recipe/${recipeId}`, {
+                method: "DELETE",
+                headers: {
+                    'Content-Type': 'application/json;',
+                }
+            });
+        }
     }
 
     function imageViewer() {
@@ -125,7 +136,7 @@
     }
 </script>
 
-<div x-data="{addRecipeShow:false, recipeShow:false ,recipes: [],categories:[], numberOfPages:0, recipesPerPage:3}" x-init="recipes= await fetchRecipesJSON();categories=await fetchCategoriesJSON() ;recipesPerPage=3; console.log(recipes)  ; numberOfPages=Math.ceil(recipes.length/recipesPerPage)">
+<div x-data="{addRecipeShow:false, recipeShow:false ,recipes: [],categories:[],currentRecipe:{id: '',title: '',ingredients: [''],instructions: [''],categories: []} ,numberOfPages:0, recipesPerPage:3}" x-init="recipes= await fetchRecipesJSON();categories=await fetchCategoriesJSON() ;recipesPerPage=3; console.log(recipes)  ; numberOfPages=Math.ceil(recipes.length/recipesPerPage)">
     <section id="section1">
         <div class="text-center c-back-img-div">
             <div class="row pe-0">
@@ -190,7 +201,9 @@
                                                             </template>
                                                         </div>
                                                     </div>
-                                                    <a class="c-details-btn btn " asp-page="RecipeDetails">DETAILS</a>
+                                                    <div x-on:click="currentRecipe=recipe">
+                                                        <a class="c-details-btn btn ">DETAILS</a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -326,15 +339,15 @@
             </div>
         </div>
     </section>
-    <section>
-        <div class="c-recipe-background">
+    <section id="recipeDetailsSection">
+        <div class="c-recipe-details-background">
             <div class="row" style="margin:1rem 12rem">
                 <div class="col-5 px-0 justify-content-center">
-                    <h2 class="c-recipe-details-title"> Bread with Cream Recipe</h2>
+                    <h2 class="c-recipe-details-title" x-text="`${currentRecipe.title} Recipe`"> </h2>
                 </div>
                 <div class="col py-1">
                     <div class="float-end me-2">
-                        <button class="d-inline btn btn-primary">
+                        <button class="d-inline btn btn-primary" x-on:click="await deleteRecipe(currentRecipe.id)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                 <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                                 <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
@@ -349,8 +362,8 @@
                 </div>
             </div>
             <div class="row c-recipe-details-div shadow">
-                <div class="col-5 px-0">
-                    <img src="~/Images/breadwithcream.jpg" class="c-recipe-details-img" />
+                <div class="col-5 px-0 h-100">
+                    <img x-bind:src="currentRecipe.imagepath" class="c-recipe-details-img h-100" />
                 </div>
                 <div class="col-7 p-3">
                     <div class="d-flex flex-column ">
@@ -359,56 +372,27 @@
                             <h5 class="c-recipe-details-headers">Ingredients</h5>
                             <div class="c-recipe-details-border p-2">
                                 <div class="row">
-                                    <div class="col-6">
-                                        <ul>
-                                            <li>1 package (1/4 ounce) active dry yeast</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-6">
-                                        <ul>
-                                            <li>1 tablespoon salt</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-6">
-                                        <ul>
-                                            <li>3 tablespoons plus 1/2 teaspoon sugar</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-6">
-                                        <ul>
-                                            <li>6-1/4 to 6-3/4 cups bread flour</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-6">
-                                        <ul>
-                                            <li>2-1/4 cups warm water (110° to 115°)</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-6">
-                                        <ul>
-                                            <li>2 tablespoons canola oil</li>
-                                        </ul>
-                                    </div>
+                                    <template x-for="currentRecipeIngredients in currentRecipe.ingredients">
+                                        <div class="col-6">
+                                            <ul>
+                                                <li x-text="currentRecipeIngredients"></li>
+                                            </ul>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>
                         <div>
                             <img src="~/Images/Lovepik_com-401216683-fruit-salad-big-bowl-of-fruit.png" width="65" height="65" />
                             <h5 class="c-recipe-details-headers">Steps</h5>
-                            <div class="c-recipe-details-border p-2" style="height: 40vh; overflow: auto;">
+                            <div class="c-recipe-details-border p-2" style="height: 35vh;">
                                 <ol>
-                                    <li>In a large bowl, dissolve yeast and 1/2 teaspoon sugar in warm water; let stand until bubbles form on surface. Whisk together remaining 3 tablespoons sugar, salt and 3 cups flour. Stir oil into yeast mixture; pour into flour mixture and beat until smooth. Stir in enough remaining flour, 1/2 cup at a time, to form a soft dough.</li>
-                                    <hr style=" height: 0.5px; margin: 1rem 6rem; " />
-                                    <li>Turn onto a floured surface; knead until smooth and elastic, 8-10 minutes. Place in a greased bowl, turning once to grease the top. Cover and let rise in a warm place until doubled, 1-1/2 to 2 hours.</li>
-                                    <hr style=" height: 0.5px; margin: 1rem 6rem; " />
-                                    <li>Punch dough down. Turn onto a lightly floured surface; divide dough in half. Shape each into a loaf. Place in 2 greased 9x5-in. loaf pans. Cover and let rise until doubled, 1 to 1-1/2 hours. </li>
-                                    <hr style=" height: 0.5px; margin: 1rem 6rem; " />
-                                    <li>Bake at 375° until loaf is golden brown and sounds hollow when tapped or has reached an internal temperature of 200°, 30-35 minutes. Remove from pans to wire racks to cool.</li>
-                                    <hr style=" height: 0.5px; margin: 1rem 6rem; " />
-                                    <li>Place the flour, sugar, milk, and salt in a medium-sized pan. Whisk until there are no lumps.</li>
-                                    <li>Heat over medium heat and stir with a wooden spoon for about 3 to 4 minutes until bubbles start to pop up. </li>
-                                    <li>Reduce the heat to low or medium-low. Stir in the strained egg yolks a little by little, over 20 to 30 seconds.</li>
-                                    <li>Remove from the heat. Add the butter and vanilla extract and mix well. Let it cool and refrigerate until ready to use. You can refrigerate it for 1 or 2 days.</li>
+                                    <template x-for="currentRecipeInstructions in currentRecipe.instructions">
+                                        <div>
+                                            <li x-text="currentRecipeInstructions"></li>
+                                            <hr style=" height: 0.5px; margin: 1rem 6rem; " />
+                                        </div> 
+                                    </template>
                                 </ol>
                             </div>
                         </div>
