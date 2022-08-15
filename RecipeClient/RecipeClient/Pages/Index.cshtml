@@ -143,10 +143,6 @@
             },
         }
     }
-    function changeData(imgUrl){
-        var e = document.getElementById("divImg");
-        e.setAttribute("x-data", `imageViewer(${imgUrl})`);
-    }
 </script>
 
 <div x-data="{addRecipeShow:false, recipeDetailsShow:false, recipeShow:false,recipes: [],categories:[],currentRecipe:{id: '',title: '',imagepath:'',ingredients: [''],instructions: [''],categories: []} ,numberOfPages:0, recipesPerPage:3}" x-init="recipes= await fetchRecipesJSON();categories=await fetchCategoriesJSON() ;recipesPerPage=3; console.log(recipes)  ; numberOfPages=Math.ceil(recipes.length/recipesPerPage)">
