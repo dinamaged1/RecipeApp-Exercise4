@@ -276,7 +276,13 @@ body {
 .c-cancel-button {
     background-color: none;
     border-radius: 40px;
-    border-color: #BE6F5E;
+    border-color: yellow;
+}
+
+.c-confirm-button {
+    border-radius: 40px;
+    color: black;
+    background-color: yellow;
 }
 
 .c-categories-background {
@@ -289,8 +295,16 @@ body {
     scroll-behavior: revert !important;
 }
 
+.c-category-card{
+    border-radius:15px;
+    text-align:center;
+}
 .c-category-card:hover {
-    background-color: #ffcfd7;
+    background-color: #faff96;
+}
+
+.c-edit-modal-body {
+    margin: 20px 0px;
 }
 
 @media screen and (max-width: 1500px) {

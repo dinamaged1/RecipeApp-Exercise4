@@ -200,6 +200,20 @@
         }
     }
 
+    async function addCategory(newCategory) {
+        if (newCategory !== "") {
+            // Make add category request
+            let response = await fetch("@Model.ApiUrl/category", {
+                method: "POST",
+                body: JSON.stringify(newCategory),
+                headers: {
+                    'Content-Type': 'application/json;',
+                }
+            });
+        }
+        $('#addCategoryModal').modal('hide');
+    }
+
     function imageViewer(url) {
         return {
             imgUrl: `${url}`,
@@ -265,7 +279,9 @@
                                     <p class="c-grey-font c-title-font h4">Category</p>
                                 </button>
                                 <p class="c-description-font"> You can add new categories and share with us your country food. </p>
-                                <button class="btn btn-warnong m-4 c-explore-btn" style="background-color: #ffffd5;">Explore Categories</button>
+                                <a href="#categoriesSection">
+                                    <button class="btn btn-warnong m-4 c-explore-btn" style="background-color: #ffffd5;">Explore Categories</button>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -615,7 +631,7 @@
                                                 <button type="button" class="btn btn-secondary" x-on:click=""> Cancel</button>
                                             </div>
                                             <div class="col">
-                                                <button type="submit" class="btn c-confirm-button" style="background-color: hotpink">Submit </button>
+                                                <button type="submit" class="btn " style="background-color: hotpink">Submit </button>
                                             </div>
                                         </div>
                                     </div>
@@ -651,7 +667,7 @@
                 </div>
             </div>
         </section>
-        <section>
+        <section id="categoriesSection">
             <div class="c-categories-background">
                 <div style="text-align:end" class="p-3 pb-0" href="#section1" x-on:click="window.location.hash = '#section1';">
                     <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-arrow-up-square" viewBox="0 0 16 16" style="cursor:pointer">
@@ -660,7 +676,7 @@
                 </div>
                 <h1 class="c-title-font h1 mb-4" style="text-align:center; color:white; font-size:60px;">
                     Categories
-                    <button x-on:click="addRecipeShow=true;  $nextTick(()=>{window.location.hash = '#addRecipeSection'})" style="border: none; background-color: transparent">
+                    <button style="border: none; background-color: transparent" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                         <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16" style="color:yellow; cursor:pointer">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
@@ -679,18 +695,19 @@
                     </template>
                 </div>
             </div>
-            <div class="modal fade" id="addModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+            @* Add category modal *@
+            <div class="modal fade" id="addCategoryModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content">
+                    <div class="modal-content" style="border-color:yellow; border-width:2px; border-style:solid" x-data="{newCategory:''}">
                         <div class="modal-header">
                             <h5 class="modal-title" id="addModalLabel">Add new category</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form asp-page-handler="add" method="post">
+                        <form x-on:submit.prevent="await addCategory(newCategory); categories=await fetchCategoriesJSON()">
                             <div class="modal-body c-edit-modal-body">
                                 <div class="form-group">
                                     <label class="mb-2"> Enter new category name</label>
-                                    <input type="text" id="categoryName" class="form-control" value="" required />
+                                    <input type="text" id="categoryName" class="form-control" x-model="newCategory" required />
                                 </div>
                             </div>
                             <div class="modal-footer c-modal-footer">
