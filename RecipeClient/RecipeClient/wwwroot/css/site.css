@@ -183,7 +183,7 @@ body {
     scroll-behavior: revert !important;
 }
 .c-recipe-details-div {
-    height: 44rem;
+    height: 47.5rem;
     margin: 1rem 10rem;
     background-color: white;
 }
@@ -236,6 +236,47 @@ body {
 
 .c-edit-modal-label{
     font-weight:500;
+}
+
+.c-delete-modal-header {
+    border-bottom: none;
+}
+
+.c-delete-confirmation-text {
+    margin-top: 5%
+}
+
+.c-delete-modal-title {
+    padding-left: 8rem !important;
+    margin-top: 5px;
+}
+
+.c-delete-trash {
+    border-radius: 50%;
+    border-color: #e62222;
+    border-style: solid;
+    width: 70px;
+}
+
+.c-delete-modal-content {
+    width: 75%;
+}
+
+.c-cancel-delete {
+    border-color: #E62222;
+    padding: 0.4rem 1rem;
+}
+
+.c-delete-button {
+    border-radius: 40px;
+    color: white;
+    background-color: #E62222;
+}
+
+.c-cancel-button {
+    background-color: none;
+    border-radius: 40px;
+    border-color: #BE6F5E;
 }
 
 @media screen and (max-width: 1500px) {
