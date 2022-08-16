@@ -121,7 +121,7 @@
                 "categories": toBeEditRecipe.categories
             }
 
-            let response = await fetch(`@Model.ApiUrl/recipe/${recipeId}`, {
+            let response = await fetch(`@Model.ApiUrl/recipe/${toBeEditRecipe.id}`, {
                 method: "PUT",
                 body: JSON.stringify(newRecipe),
                 headers: {
@@ -150,6 +150,8 @@
                 },
                 body: JSON.stringify(parameter),
             });
+
+            $('#editModalRecipe').modal('hide');
             return true;
         }
         else {
@@ -161,6 +163,7 @@
                 "instructions": toBeEditRecipe.instructions,
                 "categories": toBeEditRecipe.categories
             }
+
             let response = await fetch(`@Model.ApiUrl/recipe/${recipeId}`, {
                 method: "PUT",
                 body: JSON.stringify(newRecipe),
@@ -169,9 +172,9 @@
                 }
             });
 
+            $('#editModalRecipe').modal('hide');
             return true;
         }
-
     }
 
     async function deleteRecipe(recipeId) {
@@ -489,7 +492,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body c-edit-modal-body">
-                            <form x-on:submit="isDataOk=await editRecipe(currentRecipe,imageBase64Stringsep); ">
+                            <form x-on:submit.prevent="isDataOk=await editRecipe(currentRecipe,imageBase64Stringsep); ">
                                 <div class="">
                                     <div class="">
                                         <label class="col-form-label c-edit-modal-label">Title</label>
