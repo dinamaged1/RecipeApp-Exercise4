@@ -279,6 +279,20 @@ body {
     border-color: #BE6F5E;
 }
 
+.c-categories-background {
+    min-height: 100vh;
+    padding-top: 1%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #bee2e4;
+    overflow: hidden;
+    scroll-behavior: revert !important;
+}
+
+.c-category-card:hover {
+    background-color: #ffcfd7;
+}
+
 @media screen and (max-width: 1500px) {
     .c-recipe-details-background {
         min-height: 75vh;
