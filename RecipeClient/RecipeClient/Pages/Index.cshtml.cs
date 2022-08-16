@@ -35,5 +35,12 @@ namespace RecipeClient.Pages
             var filePath = $"{_host.WebRootPath}/RecipesImages/{recievedImage.FileName}";
             await System.IO.File.WriteAllBytesAsync(filePath, data);
         }
+
+        public async Task OnPostDeleteImageFolder([FromBody] Image recievedImage)
+        {
+            //Delete Image from folder RecipeImages
+            var filePathDelete = $"{_host.WebRootPath}{recievedImage.FileName}";
+            System.IO.File.Delete(filePathDelete);
+        }
     }
 }

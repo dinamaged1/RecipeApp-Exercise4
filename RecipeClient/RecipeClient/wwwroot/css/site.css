@@ -26,26 +26,8 @@ body {
     display: none !important;
 }
 
-::-webkit-scrollbar {
-    width: 10px;
-}
 
-/* Track */
-::-webkit-scrollbar-track {
-    background: #d97dab8f;
-    border-radius: 10px;
-}
 
-/* Handle */
-::-webkit-scrollbar-thumb {
-    background: #d23f83;
-    border-radius: 10px;
-}
-
-    /* Handle on hover */
-    ::-webkit-scrollbar-thumb:hover {
-        background: #8a003f;
-    }
 
 .c-container {
     padding: 0px;
@@ -187,7 +169,7 @@ body {
     width: 45%;
 }
 
-.form-check-input:checked {
+.c-form-check-input:checked {
     background-color: #ad21c5;
 }
 
@@ -232,6 +214,29 @@ body {
     font-weight: 400;
 }
 
+/* Track */
+    .c-recipe-details-border::-webkit-scrollbar {
+        width: 10px;
+    }
+    .c-recipe-details-border::-webkit-scrollbar-track {
+        background: #d97dab8f;
+        border-radius: 10px;
+    }
+
+/* Handle */
+    .c-recipe-details-border::-webkit-scrollbar-thumb {
+        background: #d23f83;
+        border-radius: 10px;
+    }
+
+    /* Handle on hover */
+        .c-recipe-details-border::-webkit-scrollbar-thumb:hover {
+            background: #8a003f;
+        }
+
+.c-edit-modal-label{
+    font-weight:500;
+}
 
 @media screen and (max-width: 1500px) {
     .c-recipe-details-background {
