@@ -182,6 +182,7 @@ body {
     overflow: hidden;
     scroll-behavior: revert !important;
 }
+
 .c-recipe-details-div {
     height: 47.5rem;
     margin: 1rem 10rem;
@@ -193,6 +194,7 @@ body {
     color: hotpink;
     font-family: 'Courgette', cursive;
 }
+
 .c-recipe-details-img {
     width: 100%;
     height: 100%;
@@ -201,7 +203,7 @@ body {
 
 .c-recipe-details-headers {
     color: hotpink;
-    font-weight:700;
+    font-weight: 700;
 }
 
 .c-recipe-details-border {
@@ -214,28 +216,29 @@ body {
     font-weight: 400;
 }
 
-/* Track */
+    /* Track */
     .c-recipe-details-border::-webkit-scrollbar {
         width: 10px;
     }
+
     .c-recipe-details-border::-webkit-scrollbar-track {
         background: #d97dab8f;
         border-radius: 10px;
     }
 
-/* Handle */
+    /* Handle */
     .c-recipe-details-border::-webkit-scrollbar-thumb {
         background: #d23f83;
         border-radius: 10px;
     }
 
-    /* Handle on hover */
+        /* Handle on hover */
         .c-recipe-details-border::-webkit-scrollbar-thumb:hover {
             background: #8a003f;
         }
 
-.c-edit-modal-label{
-    font-weight:500;
+.c-edit-modal-label {
+    font-weight: 500;
 }
 
 .c-delete-modal-header {
@@ -295,22 +298,33 @@ body {
     scroll-behavior: revert !important;
 }
 
-.c-category-card{
-    border-radius:15px;
-    text-align:center;
+.c-category-card {
+    border-radius: 15px;
+    text-align: center;
+    
 }
-.c-category-card:hover {
-    background-color: #faff96;
-}
+
+    .c-category-card:hover {
+        background-color: #faff96;
+    }
 
 .c-edit-modal-body {
     margin: 20px 0px;
 }
 
+.c-category-edits {
+    display: none;
+    transition-duration: 1s
+}
+
+.c-category-card:hover > .c-category-edits {
+    display: block;
+}
+
 @media screen and (max-width: 1500px) {
     .c-recipe-details-background {
         min-height: 75vh;
-        width:100%;
+        width: 100%;
         padding-top: 1%;
         background-repeat: no-repeat;
         background-size: cover;
