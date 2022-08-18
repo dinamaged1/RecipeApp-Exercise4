@@ -51,53 +51,83 @@
         const newRecipeCategories = pickRecipeCategories(newRecipe.categories, categories);
 
         // Check if inputs is full or empty
-        let isDataOk = true;
-        if (newRecipe.title == "" || newRecipe.ingredients.length == 0 || newRecipe.instructions.length == 0 || `${srcData}`=="") {
-            isDataOk = false;
+        if (newRecipe.title === "" || newRecipe.ingredients.length === 0 || newRecipe.instructions.length === 0 || `${srcData}` === "") {
+            Swal.fire({
+                icon: 'error',
+                title: 'Some data is missing...',
+                text: `please enter complete data`,
+            })
+            return false;
         }
+
         for (i = 0; i < newRecipe.ingredients.length; i++) {
-            if (newRecipe.ingredients[i] == "") {
-                isDataOk = false;
+            if (newRecipe.ingredients[i] === "") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Some data is missing...',
+                    text: `please enter recipe ingredients`,
+                })
+                return false;
             }
         }
+
         for (i = 0; i < newRecipe.instructions.length; i++) {
-            if (newRecipe.instructions[i] == "") {
-                isDataOk = false;
+            if (newRecipe.instructions[i] === "") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Some data is missing...',
+                    text: `please enter recipe instructions`,
+                })
+                return false;
             }
         }
 
-        if (isDataOk) {
-            // New Recipe object that will be added to recipe list
-            newRecipe = {
-                "id": newRecipe.id,
-                "title": newRecipe.title,
-                "imagepath": `/RecipesImages/${imagePath}`,
-                "ingredients": newRecipe.ingredients,
-                "instructions": newRecipe.instructions,
-                "categories": newRecipeCategories
-            }
-
-            // Make add recipe request
-            let response = await fetch("@Model.ApiUrl/recipe", {
-                method: "POST",
-                body: JSON.stringify(newRecipe),
-                headers: {
-                    'Content-Type': 'application/json;',
-                }
-            });
-
-            // Call SaveImageToFolder method with POST request
-            let parameter = { Base64String: `${srcData}`, FileName: `${imagePath}` };
-            response = await fetch(`?handler=SaveImageToFolder`, {
-                method: "POST",
-                headers: {
-                    "Access-Control-Allow-Origin": "*",
-                    "RequestVerificationToken": `@token`, 'Content-Type': 'application/json;'
-                },
-                body: JSON.stringify(parameter),
-            });
+        // New Recipe object that will be added to recipe list
+        newRecipe = {
+            "id": newRecipe.id,
+            "title": newRecipe.title,
+            "imagepath": `/RecipesImages/${imagePath}`,
+            "ingredients": newRecipe.ingredients,
+            "instructions": newRecipe.instructions,
+            "categories": newRecipeCategories
         }
-        return isDataOk;
+
+        // Make add recipe request
+        let response1 = await fetch("@Model.ApiUrl/recipe", {
+            method: "POST",
+            body: JSON.stringify(newRecipe),
+            headers: {
+                'Content-Type': 'application/json;',
+            }
+        });
+
+        // Call SaveImageToFolder method with POST request
+        let parameter = { Base64String: `${srcData}`, FileName: `${imagePath}` };
+        let response2 = await fetch(`?handler=SaveImageToFolder`, {
+            method: "POST",
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "RequestVerificationToken": `@token`, 'Content-Type': 'application/json;'
+            },
+            body: JSON.stringify(parameter),
+        });
+
+        if (response1.status === 200 && response2.status === 200) {
+            Swal.fire(
+                'Good job!',
+                `${newRecipe.title} recipe added successfully`,
+                'success'
+            )
+            return true;
+        }
+        else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: `Something went wrong while adding ${newRecipe.title} recipe!`,
+            })
+            return false;
+        }
     }
 
     async function editRecipe(toBeEditRecipe, imageBase64Stringsep) {
@@ -201,6 +231,7 @@
     }
 
     async function addCategory(newCategory) {
+        $('#addCategoryModal').modal('hide');
         if (newCategory !== "") {
             // Make add category request
             let response = await fetch("@Model.ApiUrl/category", {
@@ -210,11 +241,36 @@
                     'Content-Type': 'application/json;',
                 }
             });
+
+            // If user entered repeated category
+            if (response.status === 400) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `${newCategory} category already exist`,
+                })
+            }
+            // If successful request
+            else if (response.status === 200) {
+                Swal.fire(
+                    'Good job!',
+                    `${newCategory} category added successfully`,
+                    'success'
+                )
+            }
         }
-        $('#addCategoryModal').modal('hide');
+        else {
+            $('#addCategoryModal').modal('hide');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: `You entered empty input`,
+            })
+        }
     }
 
     async function editCategory(toBeEditedCategory, newCategoryName) {
+        $('#editCategoryModal').modal('hide');
         if (toBeEditedCategory !== "", newCategoryName !== "") {
             let response = await fetch(`@Model.ApiUrl/category/${toBeEditedCategory}`, {
                 method: "PUT",
@@ -223,11 +279,32 @@
                     'Content-Type': 'application/json;',
                 }
             });
+            if (response.status === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: ` ${toBeEditedCategory} category edited to ${newCategoryName} successfully`,
+                    showConfirmButton: true,
+                })
+            }
+            else if (response.status === 400) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `${newCategoryName} category already exist`,
+                })
+            }
+            else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `Something went wrong while editing ${toBeEditedCategory} category!`,
+                })
+            }
         }
-        $('#editCategoryModal').modal('hide');
     }
 
     async function deleteCategory(toBeDeletedCategory) {
+        $('#deleteCategoryModal').modal('hide');
         if (toBeDeletedCategory !== "") {
             let response = await fetch(`@Model.ApiUrl/category/${toBeDeletedCategory}`, {
                 method: "DELETE",
@@ -235,8 +312,29 @@
                     'Content-Type': 'application/json;',
                 }
             });
+            if (response.status === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: ` ${toBeDeletedCategory} category deleted successfully`,
+                    showConfirmButton: true,
+                });
+            }
+            else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `Something went wrong while deleting ${toBeDeletedCategory} category!`,
+                })
+            }
         }
-        $('#deleteCategoryModal').modal('hide');
+        else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: `Something went wrong while deleting ${toBeDeletedCategory} category!`,
+            })
+        }
+
     }
 
     function imageViewer(url) {
@@ -247,6 +345,9 @@
 
             changeImgUrl: function (newUrl) {
                 this.imgUrl = newUrl;
+            },
+            changeImageBase64Stringsep: function (base64) {
+                this.imageBase64Stringsep = base64;
             },
             fileChosen(event) {
                 this.fileToDataUrl(event, (src1, src2) => {
@@ -283,7 +384,7 @@
 </script>
 
 <div x-data="currentRecipe">
-    <div x-data="{addRecipeShow:false, recipeDetailsShow:false, recipeShow:false,recipes: [],categories:[],toBeEditRecipe:{ id: '', title: '', imagepath: '', ingredients: [''], instructions: [''], categories: [] } ,numberOfPages:0, recipesPerPage:3}" x-init="recipes= await fetchRecipesJSON();categories=await fetchCategoriesJSON() ;recipesPerPage=3; console.log(recipes)  ; numberOfPages=Math.ceil(recipes.length/recipesPerPage)">
+    <div x-data="{addRecipeShow:false, recipeDetailsShow:false, recipeShow:false,recipes: [],categories:[],toBeEditRecipe:{ id: '', title: '', imagepath: '', ingredients: [''], instructions: [''], categories: []} ,numberOfPages:0, recipesPerPage:3}" x-init="recipes= await fetchRecipesJSON();categories=await fetchCategoriesJSON() ;recipesPerPage=3; console.log(recipes)  ; numberOfPages=Math.ceil(recipes.length/recipesPerPage)">
         <section id="section1">
             <div class="text-center c-back-img-div">
                 <div class="row pe-0">
@@ -322,7 +423,7 @@
                 </div>
                 <h1 class="c-title-font h1 mb-4" style="text-align:center; color:white; font-size:60px;">
                     Recipes
-                    <button x-on:click="addRecipeShow=true;  $nextTick(()=>{window.location.hash = '#addRecipeSection'})" style="border: none; background-color: transparent">
+                    <button x-on:click="addRecipeShow=true;  $nextTick(()=>{window.location.href = '#addRecipeSection'})" style="border: none; background-color: transparent">
                         <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16" style="color:hotpink; cursor:pointer">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
@@ -350,7 +451,7 @@
                                                                 </template>
                                                             </div>
                                                         </div>
-                                                        <div x-on:click="changeCurrentRecipe(recipe); toBeEditRecipe=currentRecipe;currentRecipeImage=recipe.imagepath; recipeDetailsShow=true; $nextTick(()=>{window.location.hash = '#recipeDetailsSection'})">
+                                                        <div x-on:click="changeCurrentRecipe(recipe); toBeEditRecipe=currentRecipe; currentRecipeImage=recipe.imagepath; recipeDetailsShow=true; $nextTick(()=>{window.location.href = '#recipeDetailsSection'})">
                                                             <a class="c-details-btn btn ">DETAILS</a>
                                                         </div>
                                                     </div>
@@ -380,9 +481,9 @@
                 </h1>
                 <div class="c-add-recipe-form c-form-div" x-data="imageViewer('')">
                     <div class="p-5 pt-4" x-data="{newRecipe: {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}}">
-                        <form x-on:submit.prevent="isDataOk=await addRecipe(newRecipe,imageBase64Stringsep,categories); if(isDataOk){recipes=await fetchRecipesJSON(); window.location.hash = '#recipesSection';  addRecipeShow=false; newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []};imgUrl='';imageBase64Stringsep: ''}">
+                        <form x-on:submit.prevent="isDataOk=await addRecipe(newRecipe,imageBase64Stringsep,categories); if(isDataOk !== false){recipes=await fetchRecipesJSON(); newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}; imgUrl='';imageBase64Stringsep: ''; window.location.href='#recipesSection' ;addRecipeShow=false;}">
                             <div style="float: right;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16" style="cursor:pointer" x-on:click="window.location.hash = '#recipesSection'; $nextTick(()=>{newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}})">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16" style="cursor:pointer" x-on:click="window.location.href = '#recipesSection'; $nextTick(()=>{addRecipeShow=false; newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []};changeImgUrl('');changeImageBase64Stringsep('')})">
                                     <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
                                 </svg>
                             </div>
@@ -476,7 +577,7 @@
                             <div>
                                 <div class="row " style="float:right">
                                     <div class="col">
-                                        <button type="button" class="btn btn-secondary" x-on:click="await $nextTick(()=>{window.location.hash = '#recipesSection'; newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}; addRecipeShow=false})"> Cancel</button>
+                                        <button type="button" class="btn btn-secondary" x-on:click="await $nextTick(()=>{window.location.href = '#recipesSection'; newRecipe= {id: '@Guid.NewGuid()',title: '',ingredients: [''],instructions: [''],categories: []}; addRecipeShow=false; changeImgUrl(''); changeImageBase64Stringsep('')})"> Cancel</button>
                                     </div>
                                     <div class="col">
                                         <button type="submit" class="btn" style="background-color: #d560e9">Submit </button>
@@ -489,7 +590,6 @@
             </div>
         </section>
         <section x-show="recipeDetailsShow" id="recipeDetailsSection">
-
             <div class="c-recipe-details-background" id="divImg" x-data="imageViewer('')">
                 <a class="c-back-button" href="#recipesSection" x-on:click="recipeDetailsShow=false">
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16" style="margin-top:1%; margin-left:1%; cursor:pointer">
@@ -559,7 +659,7 @@
                         <div class="modal-content" style="border-color:deeppink; border-width:1px; border-style:solid">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="editModalLabel" x-text="`Edit ${currentRecipe.title} Recipe`"></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" x-on:click="toBeEditRecipe"></button>
                             </div>
                             <div class="modal-body c-edit-modal-body">
                                 <form x-on:submit.prevent="editedRecipe=await editRecipe(toBeEditRecipe,imageBase64Stringsep); changeCurrentRecipe(editedRecipe); recipes= await fetchRecipesJSON();">
@@ -672,7 +772,7 @@
                             <div class="modal-header c-delete-modal-header">
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form x-on:submit.prevent="await deleteRecipe(currentRecipe); recipes=await fetchRecipesJSON(); window.location.hash = '#recipesSection';">
+                            <form x-on:submit.prevent="await deleteRecipe(currentRecipe); recipes=await fetchRecipesJSON(); window.location.href = '#recipesSection';recipeDetailsShow=false;">
                                 <div class="modal-body row justify-content-center pt-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="65" height="70" fill="#e62222" class="bi bi-trash3-fill c-delete-trash" viewBox="0 0 16 16">
                                         <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
@@ -683,7 +783,7 @@
                                     </p>
                                 </div>
                                 <div class="modal-footer c-modal-footer container row justify-content-center">
-                                    <button type="button" class="btn c-cancel-button c-cancel-delete col-3 me-3 " data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+                                    <button type="button" class="btn  c-cancel-delete col-3 me-3 " data-bs-dismiss="modal" aria-label="Close">Cancel</button>
                                     <button type="submit" class="btn c-delete-button col-3 ms-3">Delete</button>
                                 </div>
                             </form>
@@ -775,7 +875,7 @@
                                     </p>
                                 </div>
                                 <div class="modal-footer c-modal-footer container row justify-content-center">
-                                    <button type="button" class="btn c-cancel-button c-cancel-delete col-3 me-3 " data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+                                    <button type="button" class="btn c-cancel-delete-modal c-cancel-delete col-3 me-3 " data-bs-dismiss="modal" aria-label="Close">Cancel</button>
                                     <button type="submit" class="btn c-delete-button col-3 ms-3">Delete</button>
                                 </div>
                             </form>

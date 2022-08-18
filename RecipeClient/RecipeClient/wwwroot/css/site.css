@@ -276,6 +276,12 @@ body {
     background-color: #E62222;
 }
 
+.c-cancel-delete-modal {
+    background-color: none;
+    border-radius: 40px;
+    border-color: #E62222;
+}
+
 .c-cancel-button {
     background-color: none;
     border-radius: 40px;
